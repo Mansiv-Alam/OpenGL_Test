@@ -1,0 +1,32 @@
+### Output ###
+*.exe
+*.out
+*.o
+*.obj
+*.a
+*.lib
+*.dll
+
+build/
+bin/
+
+### IDE ###
+.vscode/
+.idea/
+*.user
+.vs/
+Debug/
+Release/
+x64/
+*.exe
+*.obj
+*.ipdb
+*.iobj
+*.pdb
+*.log
+*.tlog
+*.recipe
+
+### OS junk ###
+.DS_Store
+Thumbs.db
