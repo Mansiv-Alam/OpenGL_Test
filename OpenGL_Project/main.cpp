@@ -18,8 +18,6 @@ void processInput(GLFWwindow* window)
     }
 }
 
-
-
 int main()
 {
     HWND consoleWindow = GetConsoleWindow();
@@ -62,12 +60,10 @@ int main()
         0.0f, 0.5f, 0.0f
     };
 
-    // Binding object tests
+    // Make a Vertex Array object
     unsigned int VAO; // Create the object
     glGenVertexArrays(1, &VAO); // Store the reference to the Object as an ID
     glBindVertexArray(VAO); // Binds the Object as the current active object in the OpenGL context
-    glBindVertexArray(0); // optional unbind (sets the object id of the window target to 0)
-
 
     // Make a VBO (Vertex Buffer Object) to send all the vertex data at once
     unsigned int VBO;
@@ -77,11 +73,11 @@ int main()
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // GL_ARRAY_BUFFER = target buffer, sizeof(vertices) = size of the data, vertices = data to transfer, GL_STATIC_DRAW = how to use the data 
     // GL_STREAM_DRAW = data is set once and used a few times, GL_STATIC_DRAW = data is set once and used many times, GL_DYNAMIC_DRAW = data is changed alot and used many times
 
-    // arg 1 = location/index in the shader attribute (layout (location = 0)), arg 2 = number of components per vertex attribute (vec3 in this case), arg 3 = data type of each component, 
+    // arg 1 = location/index in the vertex shader (layout (location = 0)), arg 2 = number of components per vertex attribute (vec3 in this case), arg 3 = data type of each component, 
     // arg 4 = should the input be normalized (turned to 0,1 or -1,1 for ints, not needed for floats), arg 5 = stride (the byte offset between vector attributes, works as 0 for tightly packed attributes),
     // arg 6 = pointer = offset in the VBO where this attribute starts (0 for us, requires a void cast for the pointer)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); // tells OpenGL how to interpret the VBO data
-    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(0); // Tells the VAO that attribute pointer 0 is enabled
 
     // Write the vector shader 
     const char* vertexShaderSource = "#version 330 core\n" // Use GLSL 3.3 (the shader language for OpenGL 3.3)
@@ -92,7 +88,7 @@ int main()
         "}\0";
 
     // Write the Fragment shader 
-    const char* fragmentShaderSource = "#version 330 core\n"
+    const char* fragmentShaderSource = "#version 330 core\n" // We don't need layout (location = 0) here because we only have one output
         "out vec4 FragColor;\n" // Requires an output in a 4d vector for the red, green, blue, and alpha channels respectively
         "void main()\n"
         "{\n"
@@ -137,7 +133,6 @@ int main()
         int success;
         char infoLog[512];
         glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-
         if (!success)
         {
             glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
@@ -153,6 +148,11 @@ int main()
         // Clear the screen with a specified color
         glClearColor(red, green, blue, 1.0f); // State-setting function
         glClear(GL_COLOR_BUFFER_BIT); // State-using function
+
+        // Draw Triangle
+        glUseProgram(shaderProgram); // Tells OpenGl which vertex and fragment shader instructions to use 
+        glBindVertexArray(VAO); // Tells OpenGL which vertex data and attribute setup to use
+        glDrawArrays(GL_TRIANGLES, 0, 3); // Draw a triangle, start at index position 0 in the VBO, and read 3 vertices
 
         processInput(window);
 
