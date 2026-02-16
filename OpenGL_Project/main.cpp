@@ -105,20 +105,18 @@ int main()
     //  rgba for colors or stpq for texture coordinates, swizzling (vec2 someVec; vec4 differentVec = someVec.xyxx;)
     const char* vertexShaderSource = "#version 330 core\n" // Use GLSL 3.3 (the shader language for OpenGL 3.3)
         "layout (location = 0) in vec3 aPos;\n" // declare an input variable as aPos which is a vec3 or 3d vector type  
-        "out vec4 vertexColor;\n" // specify a color output to the fragment shader
         "void main()\n"
         "{\n"
         " gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n " // Tells the gpu where to place the vector onto the screen, must cast to 4d vector, gl_Position is required in every vector shader
-        " vertexColor = vec4(0.5, 0.0, 0.0, 1.0);\n" // output variable to dark-red
         "}\0";
 
     // Write the Fragment shader 
     const char* fragmentShaderSource = "#version 330 core\n" // We don't need layout (location = 0) here because we only have one output
         "out vec4 FragColor;\n" // Requires an output in a 4d vector for the red, green, blue, and alpha channels respectively
-        "in vec4 vertexColor;\n" // Must be same name and type
+        "uniform vec4 ourColour;\n" // Using uniforms
         "void main()\n"
         "{\n"
-        "FragColor = vertexColor;\n" // Orange Colour, 1.0 for the last argument = opaque
+        "FragColor = ourColour;\n" // Orange Colour, 1.0 for the last argument = opaque
         "}\0"
         ;
 
@@ -177,8 +175,14 @@ int main()
         glClearColor(red, green, blue, 1.0f); // State-setting function
         glClear(GL_COLOR_BUFFER_BIT); // State-using function
 
-        // Draw Triangle
-        glUseProgram(shaderProgram); // Tells OpenGl which vertex and fragment shader instructions to use 
+        glUseProgram(shaderProgram);
+
+        // Draw Polygon 
+        float timeValue = glfwGetTime();
+        float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+        int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColour"); // gets the location of the uniform in the shader
+        glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f); // Can be different suffixes for function overloading f: floats, i: ints, ui: unsigned ints
+
         glBindVertexArray(VAO); // Tells OpenGL which vertex data and attribute setup to use
         glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0); // Draw the elements, draw 6 vertices,indices are of type unsigned int, EBO has an offset of 0
 
