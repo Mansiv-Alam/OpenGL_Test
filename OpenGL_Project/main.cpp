@@ -53,17 +53,34 @@ int main()
         return -1;
     }
 
-    // Making 3 verticies (z coordinate is 0)
+    // Making verticies (z coordinate is 0)
     float vertices[] = {
-        -0.5f, -0.5f, 0.0f,
+        0.5f, 0.5f, 0.0f,
         0.5f, -0.5f, 0.0f,
-        0.0f, 0.5f, 0.0f
+        -0.5f, -0.5f, 0.0f,
+        -0.5f, 0.5f, 0.0f,
+        0.0f, 0.8f, 0.0f,
+        0.0f, -0.8f, 0.0f,
+    };
+    unsigned int indices[] = { // Indexed drawing to not write the same vertices repeatedly (allows the reuse of vertices)
+        0, 1, 3, // first triangle
+        1, 2, 3, // second triangle
+        0, 3, 4, // third triangle
+        1, 2, 5 // fourth triangle
+
     };
 
     // Make a Vertex Array object
     unsigned int VAO; // Create the object
     glGenVertexArrays(1, &VAO); // Store the reference to the Object as an ID
     glBindVertexArray(VAO); // Binds the Object as the current active object in the OpenGL context
+
+    // Make a Elemenet buffer object
+    unsigned int EBO;
+    glGenBuffers(1, &EBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO); // EBO = GL_ELEMENT_ARRAYBUFFER type
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW); // store the data of indices into the ebo
+
 
     // Make a VBO (Vertex Buffer Object) to send all the vertex data at once
     unsigned int VBO;
@@ -140,6 +157,8 @@ int main()
                 infoLog << std::endl;
         }
 
+        glPolygonMode(GL_FRONT_AND_BACK,GL_LINE); // Wireframe mode
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Default
 
         float red = 121.0 / 255.0;
         float green = 175.0 / 255.0;
@@ -152,7 +171,7 @@ int main()
         // Draw Triangle
         glUseProgram(shaderProgram); // Tells OpenGl which vertex and fragment shader instructions to use 
         glBindVertexArray(VAO); // Tells OpenGL which vertex data and attribute setup to use
-        glDrawArrays(GL_TRIANGLES, 0, 3); // Draw a triangle, start at index position 0 in the VBO, and read 3 vertices
+        glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0); // Draw the elements, draw 6 vertices,indices are of type unsigned int, EBO has an offset of 0
 
         processInput(window);
 
