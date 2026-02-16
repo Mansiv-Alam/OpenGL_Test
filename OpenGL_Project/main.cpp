@@ -96,20 +96,29 @@ int main()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); // tells OpenGL how to interpret the VBO data
     glEnableVertexAttribArray(0); // Tells the VAO that attribute pointer 0 is enabled
 
-    // Write the vector shader 
+    // Write the vector shader (default: 16 4-component vertex attributes available)
+    // vecn: the default vector of n floats. 
+    // bvecn : a vector of n booleans. 
+    // ivecn : a vector of n integers. 
+    // uvecn : a vector of n unsigned integers. 
+    // dvecn : a vector of n double components
+    //  rgba for colors or stpq for texture coordinates, swizzling (vec2 someVec; vec4 differentVec = someVec.xyxx;)
     const char* vertexShaderSource = "#version 330 core\n" // Use GLSL 3.3 (the shader language for OpenGL 3.3)
         "layout (location = 0) in vec3 aPos;\n" // declare an input variable as aPos which is a vec3 or 3d vector type  
+        "out vec4 vertexColor;\n" // specify a color output to the fragment shader
         "void main()\n"
         "{\n"
-        " gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n" // Tells the gpu where to place the vector onto the screen, must cast to 4d vector, gl_Position is required in every vector shader
+        " gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n " // Tells the gpu where to place the vector onto the screen, must cast to 4d vector, gl_Position is required in every vector shader
+        " vertexColor = vec4(0.5, 0.0, 0.0, 1.0);\n" // output variable to dark-red
         "}\0";
 
     // Write the Fragment shader 
     const char* fragmentShaderSource = "#version 330 core\n" // We don't need layout (location = 0) here because we only have one output
         "out vec4 FragColor;\n" // Requires an output in a 4d vector for the red, green, blue, and alpha channels respectively
+        "in vec4 vertexColor;\n" // Must be same name and type
         "void main()\n"
         "{\n"
-        "FragColor = vec4(1.0, 0.5, 0.2, 1.0);\n" // Orange Colour, 1.0 for the last argument = opaque
+        "FragColor = vertexColor;\n" // Orange Colour, 1.0 for the last argument = opaque
         "}\0"
         ;
 
