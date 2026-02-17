@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <windows.h>
 #include <iostream>
+#include <Shader.h>
 
 // Callback to resize the viewport when the window size changes
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -55,12 +56,13 @@ int main()
 
     // Making verticies (z coordinate is 0)
     float vertices[] = {
-        0.5f, 0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        -0.5f, -0.5f, 0.0f,
-        -0.5f, 0.5f, 0.0f,
-        0.0f, 0.8f, 0.0f,
-        0.0f, -0.8f, 0.0f,
+        // Position         // Colour
+        0.5f, 0.4f, 0.0f, 0.0f, 1.0f, 0.0f,
+        0.5f, -0.4f, 0.0f, 1.0f, 0.0f, 0.0f,
+        -0.5f, -0.4f, 0.0f, 0.0f, 0.0f, 1.0f,
+        -0.5f, 0.4f, 0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.8f, 0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, -0.8f, 0.0f, 0.0f, 0.0f, 1.0f,
     };
     unsigned int indices[] = { // Indexed drawing to not write the same vertices repeatedly (allows the reuse of vertices)
         0, 1, 3, // first triangle
@@ -93,8 +95,14 @@ int main()
     // arg 1 = location/index in the vertex shader (layout (location = 0)), arg 2 = number of components per vertex attribute (vec3 in this case), arg 3 = data type of each component, 
     // arg 4 = should the input be normalized (turned to 0,1 or -1,1 for ints, not needed for floats), arg 5 = stride (the byte offset between vector attributes, works as 0 for tightly packed attributes),
     // arg 6 = pointer = offset in the VBO where this attribute starts (0 for us, requires a void cast for the pointer)
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); // tells OpenGL how to interpret the VBO data
+
+    // Position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0); // tells OpenGL how to interpret the VBO data
     glEnableVertexAttribArray(0); // Tells the VAO that attribute pointer 0 is enabled
+
+    // Colour attribute
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     // Write the vector shader (default: 16 4-component vertex attributes available)
     // vecn: the default vector of n floats. 
@@ -105,46 +113,26 @@ int main()
     //  rgba for colors or stpq for texture coordinates, swizzling (vec2 someVec; vec4 differentVec = someVec.xyxx;)
     const char* vertexShaderSource = "#version 330 core\n" // Use GLSL 3.3 (the shader language for OpenGL 3.3)
         "layout (location = 0) in vec3 aPos;\n" // declare an input variable as aPos which is a vec3 or 3d vector type  
+        "layout (location = 1) in vec3 aColour;\n"
+        "out vec3 ourColour;"
         "void main()\n"
         "{\n"
         " gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n " // Tells the gpu where to place the vector onto the screen, must cast to 4d vector, gl_Position is required in every vector shader
+        " ourColour = aColour;\n"
         "}\0";
 
     // Write the Fragment shader 
     const char* fragmentShaderSource = "#version 330 core\n" // We don't need layout (location = 0) here because we only have one output
         "out vec4 FragColor;\n" // Requires an output in a 4d vector for the red, green, blue, and alpha channels respectively
-        "uniform vec4 ourColour;\n" // Using uniforms
+        "in vec3 ourColour;\n" // Using uniforms
         "void main()\n"
         "{\n"
-        "FragColor = ourColour;\n" // Orange Colour, 1.0 for the last argument = opaque
+        "FragColor = vec4(ourColour, 1.0f);\n" // Orange Colour, 1.0 for the last argument = opaque
         "}\0"
         ;
-
-    // Create and compile a vertex shader object 
-    unsigned int vertexShader;
-    vertexShader = glCreateShader(GL_VERTEX_SHADER); // Indicate the type of shader it is
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL); // argument 1 = shader to compile, argument 2 = number of strings passed through as source code, argument 3 = source code of the vector shader, 
-    // argument 4 = length of the source code (null here because we want the function to read till the end of the source code)
-    glCompileShader(vertexShader);
-
-    // Create and compile a fragment shader object 
-    unsigned int fragmentShader;
-    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER); // Indicate the type of shader it is
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader); 
-
-    // Make a shader program that will link the compiled shaders to the shader program object to activate when rendering (in the render loop)
-    unsigned int shaderProgram;
-    shaderProgram = glCreateProgram(); // Creates a GPU program and returns the reference ID
-    glAttachShader(shaderProgram, vertexShader); // Attaches compiled shaders to the program
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram); // links the attached shaders into one single executable gpu program
-
-    glUseProgram(shaderProgram); // Use the shader program in runtime
-
-    // Delete the standalone shader objects since their source code are and linked into the GPU program (as GPU Objects)
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    // Use the .vs and .fs extensions for the vector shader and fragment shader files
+    Shader shader("vShader.vs", "fShader.fs");
+    
 
     // Set viewport and resize callback
     glViewport(0, 0, 800, 600);
@@ -153,16 +141,7 @@ int main()
     // Render loop
     while (!glfwWindowShouldClose(window))
     {
-        // Error checking for if the vertex shader worked
-        int success;
-        char infoLog[512];
-        glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-        if (!success)
-        {
-            glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-            std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" <<
-                infoLog << std::endl;
-        }
+        
 
         glPolygonMode(GL_FRONT_AND_BACK,GL_LINE); // Wireframe mode
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Default
@@ -175,13 +154,12 @@ int main()
         glClearColor(red, green, blue, 1.0f); // State-setting function
         glClear(GL_COLOR_BUFFER_BIT); // State-using function
 
-        glUseProgram(shaderProgram);
-
         // Draw Polygon 
-        float timeValue = glfwGetTime();
-        float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
-        int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColour"); // gets the location of the uniform in the shader
-        glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f); // Can be different suffixes for function overloading f: floats, i: ints, ui: unsigned ints
+        shader.use();
+        //float timeValue = glfwGetTime();
+        //float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+        //int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColour"); // gets the location of the uniform in the shader
+        //glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f); // Can be different suffixes for function overloading f: floats, i: ints, ui: unsigned ints
 
         glBindVertexArray(VAO); // Tells OpenGL which vertex data and attribute setup to use
         glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0); // Draw the elements, draw 6 vertices,indices are of type unsigned int, EBO has an offset of 0

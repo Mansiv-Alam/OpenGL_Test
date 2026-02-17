@@ -27,6 +27,9 @@
     <ClInclude Include="include\glad\glad.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="lib\glfw3.lib" />
@@ -38,5 +41,9 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="vShader.vs" />
+    <None Include="fShader.fs" />
   </ItemGroup>
 </Project>

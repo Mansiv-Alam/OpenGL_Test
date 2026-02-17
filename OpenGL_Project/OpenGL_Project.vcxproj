@@ -23,6 +23,7 @@
     <ClInclude Include="include\GLFW\glfw3.h" />
     <ClInclude Include="include\GLFW\glfw3native.h" />
     <ClInclude Include="include\KHR\khrplatform.h" />
+    <ClInclude Include="include\Shader.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="lib\glfw3.lib" />
@@ -30,6 +31,10 @@
   <ItemGroup>
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="fShader.fs" />
+    <None Include="vShader.vs" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>18.0</VCProjectVersion>
