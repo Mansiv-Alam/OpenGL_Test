@@ -3,6 +3,7 @@
 #include <windows.h>
 #include <iostream>
 #include <Shader.h>
+#include <stb_image.h>
 
 // Callback to resize the viewport when the window size changes
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -62,15 +63,46 @@ int main()
         -0.5f, -0.4f, 0.0f, 0.0f, 0.0f, 1.0f,
         -0.5f, 0.4f, 0.0f, 1.0f, 0.0f, 0.0f,
         0.0f, 0.8f, 0.0f, 0.0f, 1.0f, 0.0f,
-        0.0f, -0.8f, 0.0f, 0.0f, 0.0f, 1.0f,
+        //0.0f, -0.8f, 0.0f, 0.0f, 0.0f, 1.0f,
     };
     unsigned int indices[] = { // Indexed drawing to not write the same vertices repeatedly (allows the reuse of vertices)
-        0, 1, 3, // first triangle
-        1, 2, 3, // second triangle
-        0, 3, 4, // third triangle
-        1, 2, 5 // fourth triangle
+
+        1, 2, 4
+        //0, 1, 3, // first triangle
+        //1, 2, 3, // second triangle
+        //0, 3, 4, // third triangle
+        //1, 2, 5 // fourth triangle
 
     };
+    // Texture coordinates for sampling (retrieving texture colour based of texture coordinates)
+    float texCoords[] = {
+        0.0f, 0.0f, // lower-left corner
+        1.0f, 0.0f, // lower-right corner
+        0.5f, 1.0f // top-center corner
+    };
+    // Multiple types of texture wrapping, GL_REPEAT (default) repeats the texture image, GL_MIRRORED_REPEAT mirrors and repeats the texture image, 
+    // GL_CLAMP_TO_EDGE clamps the coordinates between 0 and 1 (stretches the texture image), GL_CLAMP_TO_BORDER: coordinates outside the range is given 
+    // user specified border colour
+
+    float borderColor[] = { 1.0f, 1.0f, 0.0f, 1.0f };
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+
+    // tells OpenGL how to interpret the textures, args 1: texture target
+    // args 2: which axises to configure the texture to, args 3: how the texture should be wrapped
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+
+    // GL_NEAREST: finds the nearest texture pixel from the original texture image, GL_LINEAR interpolates the pixel depending on the surrounding texture pixels in a given coordinate
+    // Magnifying and minifying operations (upscaling or downscaling) can use either filitering method
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // Mipmaps are used to render far away textures with less resolution, they are pre-generated smaller versions of the texture, each 1/2 the size of the previous level
+    // Each mipmap can also have the nearest vs interpolation methods used to determine which mipmap to use 
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // Bilinear filter inside mipmap A then Bilinear filter inside mipmap B then Linear blend between mipmap A and B
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+
 
     // Make a Vertex Array object
     unsigned int VAO; // Create the object

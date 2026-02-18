@@ -46,4 +46,9 @@
     <None Include="vShader.vs" />
     <None Include="fShader.fs" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\..\Downloads\wall.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
 </Project>
