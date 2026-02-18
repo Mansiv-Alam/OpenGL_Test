@@ -30,6 +30,9 @@
     <ClInclude Include="include\Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="lib\glfw3.lib" />
@@ -41,13 +44,16 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="stb_image.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vShader.vs" />
     <None Include="fShader.fs" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\..\..\Downloads\wall.jpg">
+    <Image Include="wall.jpg">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

@@ -57,19 +57,18 @@ int main()
 
     // Making verticies (z coordinate is 0)
     float vertices[] = {
-        // Position         // Colour
-        0.5f, 0.4f, 0.0f, 0.0f, 1.0f, 0.0f,
-        0.5f, -0.4f, 0.0f, 1.0f, 0.0f, 0.0f,
-        -0.5f, -0.4f, 0.0f, 0.0f, 0.0f, 1.0f,
-        -0.5f, 0.4f, 0.0f, 1.0f, 0.0f, 0.0f,
-        0.0f, 0.8f, 0.0f, 0.0f, 1.0f, 0.0f,
+        // Position         // Colour           // Textures Coordinates
+        0.5f, 0.4f, 0.0f, 0.0f, 1.0f, 0.0f,     1.0f, 1.0f,
+        0.5f, -0.4f, 0.0f, 1.0f, 0.0f, 0.0f,    1.0f, 0.0f,
+        -0.5f, -0.4f, 0.0f, 0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+        -0.5f, 0.4f, 0.0f, 1.0f, 0.0f, 0.0f,     0.0f, 1.0f,
+        //0.0f, 0.8f, 0.0f, 0.0f, 1.0f, 0.0f,     0.0f, 1.0f,
         //0.0f, -0.8f, 0.0f, 0.0f, 0.0f, 1.0f,
     };
     unsigned int indices[] = { // Indexed drawing to not write the same vertices repeatedly (allows the reuse of vertices)
 
-        1, 2, 4
-        //0, 1, 3, // first triangle
-        //1, 2, 3, // second triangle
+        0, 1, 3, // first triangle
+        1, 2, 3, // second triangle
         //0, 3, 4, // third triangle
         //1, 2, 5 // fourth triangle
 
@@ -87,6 +86,16 @@ int main()
     float borderColor[] = { 1.0f, 1.0f, 0.0f, 1.0f };
     glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
+    // Mipmaps are used to render far away textures with less resolution, they are pre-generated smaller versions of the texture, each 1/2 the size of the previous level
+    // Each mipmap can also have the nearest vs interpolation methods used to determine which mipmap to use 
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // Bilinear filter inside mipmap A then Bilinear filter inside mipmap B then Linear blend between mipmap A and B
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // Generate a texture object
+    unsigned int texture;
+    glGenTextures(1, &texture); // args 1: how many textures we want to generate
+    glBindTexture(GL_TEXTURE_2D, texture);
+
     // tells OpenGL how to interpret the textures, args 1: texture target
     // args 2: which axises to configure the texture to, args 3: how the texture should be wrapped
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
@@ -94,15 +103,22 @@ int main()
 
     // GL_NEAREST: finds the nearest texture pixel from the original texture image, GL_LINEAR interpolates the pixel depending on the surrounding texture pixels in a given coordinate
     // Magnifying and minifying operations (upscaling or downscaling) can use either filitering method
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    // Mipmaps are used to render far away textures with less resolution, they are pre-generated smaller versions of the texture, each 1/2 the size of the previous level
-    // Each mipmap can also have the nearest vs interpolation methods used to determine which mipmap to use 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // Bilinear filter inside mipmap A then Bilinear filter inside mipmap B then Linear blend between mipmap A and B
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    int width, height, nrChannels; // these variables will be automatically filled by stb_image.h (nrChannels = # of colour channels)
+    unsigned char* data = stbi_load("wall.jpg", &width, &height, &nrChannels, 0);
 
-
+    if (data) {
+        // args 1: texture target, args 2: mipmap level for the texture, args 3: format to store the texture, args 4/5 = width and height (already set from stb_image.h)
+        // args 6: border, must be 0 (legacy stuff), args 7/8 = format and data type of the source image, args 9 = actual image data
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_image_free(data); // frees up memory allocated when loading the image in stbi_load()
 
     // Make a Vertex Array object
     unsigned int VAO; // Create the object
@@ -129,12 +145,16 @@ int main()
     // arg 6 = pointer = offset in the VBO where this attribute starts (0 for us, requires a void cast for the pointer)
 
     // Position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0); // tells OpenGL how to interpret the VBO data
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0); // tells OpenGL how to interpret the VBO data
     glEnableVertexAttribArray(0); // Tells the VAO that attribute pointer 0 is enabled
 
     // Colour attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+
+    // Vertex Coordinates attributes
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     // Write the vector shader (default: 16 4-component vertex attributes available)
     // vecn: the default vector of n floats. 
@@ -143,25 +163,7 @@ int main()
     // uvecn : a vector of n unsigned integers. 
     // dvecn : a vector of n double components
     //  rgba for colors or stpq for texture coordinates, swizzling (vec2 someVec; vec4 differentVec = someVec.xyxx;)
-    const char* vertexShaderSource = "#version 330 core\n" // Use GLSL 3.3 (the shader language for OpenGL 3.3)
-        "layout (location = 0) in vec3 aPos;\n" // declare an input variable as aPos which is a vec3 or 3d vector type  
-        "layout (location = 1) in vec3 aColour;\n"
-        "out vec3 ourColour;"
-        "void main()\n"
-        "{\n"
-        " gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n " // Tells the gpu where to place the vector onto the screen, must cast to 4d vector, gl_Position is required in every vector shader
-        " ourColour = aColour;\n"
-        "}\0";
-
-    // Write the Fragment shader 
-    const char* fragmentShaderSource = "#version 330 core\n" // We don't need layout (location = 0) here because we only have one output
-        "out vec4 FragColor;\n" // Requires an output in a 4d vector for the red, green, blue, and alpha channels respectively
-        "in vec3 ourColour;\n" // Using uniforms
-        "void main()\n"
-        "{\n"
-        "FragColor = vec4(ourColour, 1.0f);\n" // Orange Colour, 1.0 for the last argument = opaque
-        "}\0"
-        ;
+    
     // Use the .vs and .fs extensions for the vector shader and fragment shader files
     Shader shader("vShader.vs", "fShader.fs");
     
@@ -186,6 +188,8 @@ int main()
         glClearColor(red, green, blue, 1.0f); // State-setting function
         glClear(GL_COLOR_BUFFER_BIT); // State-using function
 
+        glBindTexture(GL_TEXTURE_2D, texture);
+
         // Draw Polygon 
         shader.use();
         //float timeValue = glfwGetTime();
@@ -194,7 +198,7 @@ int main()
         //glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f); // Can be different suffixes for function overloading f: floats, i: ints, ui: unsigned ints
 
         glBindVertexArray(VAO); // Tells OpenGL which vertex data and attribute setup to use
-        glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0); // Draw the elements, draw 6 vertices,indices are of type unsigned int, EBO has an offset of 0
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // Draw the elements, draw 6 vertices,indices are of type unsigned int, EBO has an offset of 0
 
         processInput(window);
 
@@ -204,6 +208,10 @@ int main()
     }
     
     // Cleanup
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
+
     glfwDestroyWindow(window);
     glfwTerminate();
     return 0;
