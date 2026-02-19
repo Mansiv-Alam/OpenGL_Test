@@ -39,6 +39,7 @@
     <None Include="vShader.vs" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="awesomeface.png" />
     <Image Include="wall.jpg" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

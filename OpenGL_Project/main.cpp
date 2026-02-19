@@ -92,9 +92,11 @@ int main()
     // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     // Generate a texture object
-    unsigned int texture;
+    unsigned int texture, texture2;
     glGenTextures(1, &texture); // args 1: how many textures we want to generate
     glBindTexture(GL_TEXTURE_2D, texture);
+
+
 
     // tells OpenGL how to interpret the textures, args 1: texture target
     // args 2: which axises to configure the texture to, args 3: how the texture should be wrapped
@@ -108,6 +110,7 @@ int main()
 
     int width, height, nrChannels; // these variables will be automatically filled by stb_image.h (nrChannels = # of colour channels)
     unsigned char* data = stbi_load("wall.jpg", &width, &height, &nrChannels, 0);
+    stbi_set_flip_vertically_on_load(true); // tells stb_image.h to flip the loaded texture on the y axis to correspond to OpenGL coordinate system
 
     if (data) {
         // args 1: texture target, args 2: mipmap level for the texture, args 3: format to store the texture, args 4/5 = width and height (already set from stb_image.h)
@@ -119,6 +122,30 @@ int main()
         std::cout << "Failed to load texture" << std::endl;
     }
     stbi_image_free(data); // frees up memory allocated when loading the image in stbi_load()
+
+    glGenTextures(1, &texture2);
+    glBindTexture(GL_TEXTURE_2D, texture2);
+    // Wrapping parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    // filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // Load images and create mipmaps 
+    data = stbi_load("awesomeface.png", &width, &height, &nrChannels, 0);
+    if (data)
+    {
+        // note that the awesomeface.png has transparency and thus an alpha channel, so make sure to tell OpenGL the data type is of GL_RGBA
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_image_free(data);
+
 
     // Make a Vertex Array object
     unsigned int VAO; // Create the object
@@ -172,6 +199,10 @@ int main()
     glViewport(0, 0, 800, 600);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
+    shader.use();
+    shader.setInt("texture2", 1); // use the shader class to set the uniforms 
+    // Alternative: glUniform1i(glGetUniformLocation(shader.ID, "texture1"), 0);
+
     // Render loop
     while (!glfwWindowShouldClose(window))
     {
@@ -188,10 +219,13 @@ int main()
         glClearColor(red, green, blue, 1.0f); // State-setting function
         glClear(GL_COLOR_BUFFER_BIT); // State-using function
 
+        glActiveTexture(GL_TEXTURE0); // Activates the texture unit (useful for multiple textures, 0 on default, minimum of 16 texture units)
         glBindTexture(GL_TEXTURE_2D, texture);
 
-        // Draw Polygon 
-        shader.use();
+        glActiveTexture(GL_TEXTURE1); // Use the second texture
+        glBindTexture(GL_TEXTURE_2D, texture2);
+
+        // Draw Polygon
         //float timeValue = glfwGetTime();
         //float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
         //int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColour"); // gets the location of the uniform in the shader
