@@ -203,10 +203,27 @@ int main()
     shader.setInt("texture2", 1); // use the shader class to set the uniforms 
     // Alternative: glUniform1i(glGetUniformLocation(shader.ID, "texture1"), 0);
 
+    int vec3One[] = {1, 2, 3};
+    int vec3Two[] = {3, 4, 5};
+    int vec3Result[3];
+    vec3Result[0] = vec3One[0] + vec3Two[0];
+    vec3Result[1] = vec3One[1] + vec3Two[1];
+    vec3Result[2] = vec3One[2] + vec3Two[2];
+    std::cout << vec3Result[0] << "," << vec3Result[1] << "," << vec3Result[2];
+
+    vec3Result[0] = vec3One[0] - vec3Two[0];
+    vec3Result[1] = vec3One[1] - vec3Two[1];
+    vec3Result[2] = vec3One[2] - vec3Two[2];
+    std::cout << vec3Result[0] << "," << vec3Result[1] << "," << vec3Result[2];
+
+    vec3Result[0] = vec3One[0] * vec3Two[0];
+    vec3Result[1] = vec3One[1] * vec3Two[1];
+    vec3Result[2] = vec3One[2] * vec3Two[2];
+    std::cout << vec3Result[0] << "," << vec3Result[1] << "," << vec3Result[2];
+
     // Render loop
     while (!glfwWindowShouldClose(window))
     {
-        
 
         glPolygonMode(GL_FRONT_AND_BACK,GL_LINE); // Wireframe mode
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Default
