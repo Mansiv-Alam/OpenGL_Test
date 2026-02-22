@@ -244,6 +244,34 @@ int main()
     std::cout << vec3Result[0] << "," << vec3Result[1] << "," << vec3Result[2] << std::endl;
     std::cout << crossProd << std::endl;
 
+    // Matrix Mulitplication
+    int matrixA[2][2] = { {1, 2}, { 3, 4}};
+    int matrixB[2][2] = { {5, 6}, { 7, 8}};
+    int result[2][2];
+
+    result[0][0] = matrixA[0][0]* matrixB[0][0] + matrixA[0][1] * matrixB[1][0];
+    result[0][1] = matrixA[0][0] * matrixB[0][1] + matrixA[0][1] * matrixB[1][1];
+    result[1][0] = matrixA[1][0] * matrixB[0][0] + matrixA[1][1] * matrixB[1][0];
+    result[1][1] = matrixA[1][0] * matrixB[0][1] + matrixA[1][1] * matrixB[1][1];
+    std::cout << result[0][0] << "," << result[0][1] << "\n" << result[1][0] << "," << result[1][1] << std::endl;
+    
+    // Scaling
+    int vec4[] = { 3, 2, 1, 1};
+    float MatrixScale[4][4] = { {1,0,0,0}, {0,1,0,0}, {0,0,1,0}, {0,0,0,1} }; // identity matrix
+    float resultf[4];
+    MatrixScale[0][0] = 0.5; // Non uniform scale (scaling factor is different for each axis)
+    MatrixScale[1][1] = 2;
+    MatrixScale[2][2] = 1;
+    MatrixScale[3][3] = 1;
+
+    // i < N
+    for (int i = 0; i < 4; i++) {
+        resultf[i] = 0;
+        for (int j = 0; j < 4; j++) {
+            resultf[i] += MatrixScale[i][j] * vec4[j];
+        }
+    }
+    std::cout << resultf[0] << "," << resultf[1] << "," << resultf[2] << "," << resultf[3] << std::endl;
     
     // Render loop
     while (!glfwWindowShouldClose(window))
