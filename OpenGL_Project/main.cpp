@@ -4,6 +4,7 @@
 #include <iostream>
 #include <Shader.h>
 #include <stb_image.h>
+#include <math.h>
 
 // Callback to resize the viewport when the window size changes
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -23,7 +24,7 @@ void processInput(GLFWwindow* window)
 int main()
 {
     HWND consoleWindow = GetConsoleWindow();
-    ShowWindow(consoleWindow, SW_HIDE); // hides the console
+    //ShowWindow(consoleWindow, SW_HIDE); // hides the console
 
     // Initialize GLFW
     if (!glfwInit())
@@ -209,18 +210,41 @@ int main()
     vec3Result[0] = vec3One[0] + vec3Two[0];
     vec3Result[1] = vec3One[1] + vec3Two[1];
     vec3Result[2] = vec3One[2] + vec3Two[2];
-    std::cout << vec3Result[0] << "," << vec3Result[1] << "," << vec3Result[2];
+    //std::cout << vec3Result[0] << "," << vec3Result[1] << "," << vec3Result[2];
 
     vec3Result[0] = vec3One[0] - vec3Two[0];
     vec3Result[1] = vec3One[1] - vec3Two[1];
     vec3Result[2] = vec3One[2] - vec3Two[2];
-    std::cout << vec3Result[0] << "," << vec3Result[1] << "," << vec3Result[2];
+    //std::cout << vec3Result[0] << "," << vec3Result[1] << "," << vec3Result[2];
 
-    vec3Result[0] = vec3One[0] * vec3Two[0];
-    vec3Result[1] = vec3One[1] * vec3Two[1];
-    vec3Result[2] = vec3One[2] * vec3Two[2];
-    std::cout << vec3Result[0] << "," << vec3Result[1] << "," << vec3Result[2];
+    // Dot Product Calculations
+    float vec3NormA[] = {0.6, -0.8, 0}; // Normalized Vectors
+    float vec3NormB[] = { 0, 1, 0 };
+    float vec3Resultf[3], normDotProd;
 
+    // Component-wise multiplication
+    vec3Resultf[0] = vec3NormA[0] * vec3NormB[0];
+    vec3Resultf[1] = vec3NormA[1] * vec3NormB[1];
+    vec3Resultf[2] = vec3NormA[2] * vec3NormB[2];
+
+    normDotProd = vec3Resultf[0] + vec3Resultf[1] + vec3Resultf[2]; 
+
+    std::cout << normDotProd << std::endl;
+    std::cout << (acos(normDotProd)*180/(acos(-1.0))) << std::endl; // Finds the angle between the two vectors and outputs them in degrees, (acos(-1.0)) = pi
+
+    // Cross Product
+    vec3One[0] = 1; vec3One[1] = 2; vec3One[2] = 3;
+    vec3Two[0] = 4; vec3Two[1] = 5; vec3Two[2] = 6;
+
+    vec3Result[0] = vec3One[1] * vec3Two[2] - vec3One[2] * vec3Two[1]; // Vy*Wz ​− Vz*Wy
+    vec3Result[1] = vec3One[2] * vec3Two[0] - vec3One[0] * vec3Two[2]; // Vz*Wx ​− Vx*Wz
+    vec3Result[2] = vec3One[0] * vec3Two[1] - vec3One[1] * vec3Two[0]; // Vx*Wy ​− Vy*Wx
+
+    float crossProd = sqrtf(powf(vec3Result[0], 2) + powf(vec3Result[1], 2) + powf(vec3Result[2], 2));
+    std::cout << vec3Result[0] << "," << vec3Result[1] << "," << vec3Result[2] << std::endl;
+    std::cout << crossProd << std::endl;
+
+    
     // Render loop
     while (!glfwWindowShouldClose(window))
     {
