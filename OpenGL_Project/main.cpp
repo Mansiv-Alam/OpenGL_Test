@@ -330,7 +330,7 @@ int main()
     // Rotate and scale the vector 
     //vec = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
     trans = glm::mat4(1.0f); // Initialize identity Matrix
-    trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0)); // glm::radians converts degrees to radians
+    trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0)); // glm::radians converts degrees to radians
     trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5)); // Scales the vector using a uniform scale
     vec = trans * vec; // Multiply the vector and tranformation matrix together
     std::cout << vec.x << vec.y << vec.z << std::endl;
@@ -363,9 +363,13 @@ int main()
         //int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColour"); // gets the location of the uniform in the shader
         //glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f); // Can be different suffixes for function overloading f: floats, i: ints, ui: unsigned ints
 
-        unsigned int transformLoc = glGetUniformLocation(shader.ID, "transform");
-        // Location of the uniform, how many matrices to pass, boolean for if you want to transpose the matrix, actual data of the matrix (use pointers because glm and OpenGl store matrix data differently)
-        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+        vec = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+        trans = glm::mat4(1.0f); 
+        trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0)); // Rotates the texture over time using glfwGetTime()
+        trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5)); // (scales first then rotates despite writing the rotate code first)
+        vec = trans * vec;
+
+        shader.setMat4("transform", trans);
 
         glBindVertexArray(VAO); // Tells OpenGL which vertex data and attribute setup to use
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // Draw the elements, draw 6 vertices,indices are of type unsigned int, EBO has an offset of 0
