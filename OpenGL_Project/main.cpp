@@ -63,13 +63,48 @@ int main()
 
     // Making verticies (z coordinate is 0)
     float vertices[] = {
-        // Position         // Colour           // Textures Coordinates
-        0.5f, 0.4f, 0.0f, 0.0f, 1.0f, 0.0f,     1.0f, 1.0f,
-        0.5f, -0.4f, 0.0f, 1.0f, 0.0f, 0.0f,    1.0f, 0.0f,
-        -0.5f, -0.4f, 0.0f, 0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
-        -0.5f, 0.4f, 0.0f, 1.0f, 0.0f, 0.0f,     0.0f, 1.0f,
-        //0.0f, 0.8f, 0.0f, 0.0f, 1.0f, 0.0f,     0.0f, 1.0f,
-        //0.0f, -0.8f, 0.0f, 0.0f, 0.0f, 1.0f,
+        // Position        // Textures Coordinates
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
     unsigned int indices[] = { // Indexed drawing to not write the same vertices repeatedly (allows the reuse of vertices)
 
@@ -178,16 +213,16 @@ int main()
     // arg 6 = pointer = offset in the VBO where this attribute starts (0 for us, requires a void cast for the pointer)
 
     // Position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0); // tells OpenGL how to interpret the VBO data
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0); // tells OpenGL how to interpret the VBO data
     glEnableVertexAttribArray(0); // Tells the VAO that attribute pointer 0 is enabled
 
     // Colour attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
+    //glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    //glEnableVertexAttribArray(1);
 
     // Vertex Coordinates attributes
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     // Write the vector shader (default: 16 4-component vertex attributes available)
     // vecn: the default vector of n floats. 
@@ -336,7 +371,7 @@ int main()
     std::cout << vec.x << vec.y << vec.z << std::endl;
 
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::rotate(model, glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f)); // Rotates or changes the position in the world space
+    model = glm::rotate(model, glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 1.0f)); // Rotates or changes the position in the world space
 
     glm::mat4 view = glm::mat4(1.0f);
     view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f)); // distance from the camera
@@ -370,6 +405,9 @@ int main()
         glActiveTexture(GL_TEXTURE1); // Use the second texture
         glBindTexture(GL_TEXTURE_2D, texture2);
 
+        glEnable(GL_DEPTH_TEST); // enable depth testing (calculates which pixels should be on top depending on the stored z values)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear the depth buffer for each render iteration
+
         // Draw Polygon
         //float timeValue = glfwGetTime();
         //float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
@@ -387,7 +425,8 @@ int main()
         shader.setMat4("projection", proj);
 
         glBindVertexArray(VAO); // Tells OpenGL which vertex data and attribute setup to use
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // Draw the elements, draw 6 vertices,indices are of type unsigned int, EBO has an offset of 0
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // Draw the elements, draw 6 vertices,indices are of type unsigned int, EBO has an offset of 0
 
         processInput(window);
 
