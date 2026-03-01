@@ -335,6 +335,18 @@ int main()
     vec = trans * vec; // Multiply the vector and tranformation matrix together
     std::cout << vec.x << vec.y << vec.z << std::endl;
 
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+    glm::mat4 view = glm::mat4(1.0f);
+    view = glm::translate(view, glm::vec3(1.0f, 0.0f, -3.0f));
+
+
+    // Orthographic projection 
+    //glm::mat4 proj = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
+    // Perspective projection
+    glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f); // 45 degrees for fov, aspect ratio (width/height), near distance/plane, far distance/plane
+
     
     // Render loop
     while (!glfwWindowShouldClose(window))
