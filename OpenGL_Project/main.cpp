@@ -336,16 +336,17 @@ int main()
     std::cout << vec.x << vec.y << vec.z << std::endl;
 
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    model = glm::rotate(model, glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f)); // Rotates or changes the position in the world space
 
     glm::mat4 view = glm::mat4(1.0f);
-    view = glm::translate(view, glm::vec3(1.0f, 0.0f, -3.0f));
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f)); // distance from the camera
 
 
     // Orthographic projection 
     //glm::mat4 proj = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
     // Perspective projection
-    glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f); // 45 degrees for fov, aspect ratio (width/height), near distance/plane, far distance/plane
+    glm::mat4 proj = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f); // 45 degrees for fov, aspect ratio (width/height), near distance/plane, far distance/plane
+
 
     
     // Render loop
@@ -379,9 +380,11 @@ int main()
         trans = glm::mat4(1.0f); 
         trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0)); // Rotates the texture over time using glfwGetTime()
         trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5)); // (scales first then rotates despite writing the rotate code first)
-        vec = trans * vec;
+        //vec = trans * vec;
 
-        shader.setMat4("transform", trans);
+        shader.setMat4("model", model);
+        shader.setMat4("view", view);
+        shader.setMat4("projection", proj);
 
         glBindVertexArray(VAO); // Tells OpenGL which vertex data and attribute setup to use
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // Draw the elements, draw 6 vertices,indices are of type unsigned int, EBO has an offset of 0
