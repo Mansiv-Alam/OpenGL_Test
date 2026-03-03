@@ -120,6 +120,19 @@ int main()
         1.0f, 0.0f, // lower-right corner
         0.5f, 1.0f // top-center corner
     };
+    glm::vec3 cubePositions[] = { // cube positions in the world space
+        glm::vec3( 0.0f, 0.0f, 0.0f),
+        glm::vec3( 2.0f, 5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3( 2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f, 3.0f, -7.5f),
+        glm::vec3( 1.3f, -2.0f, -2.5f),
+        glm::vec3( 1.5f, 2.0f, -2.5f),
+        glm::vec3( 1.5f, 0.2f, -1.5f),
+        glm::vec3(-1.3f, 1.0f, -1.5f)
+    };
+
     // Multiple types of texture wrapping, GL_REPEAT (default) repeats the texture image, GL_MIRRORED_REPEAT mirrors and repeats the texture image, 
     // GL_CLAMP_TO_EDGE clamps the coordinates between 0 and 1 (stretches the texture image), GL_CLAMP_TO_BORDER: coordinates outside the range is given 
     // user specified border colour
@@ -372,7 +385,7 @@ int main()
 
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::rotate(model, glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 1.0f)); // Rotates or changes the position in the world space
-
+    
     glm::mat4 view = glm::mat4(1.0f);
     view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f)); // distance from the camera
 
@@ -420,12 +433,25 @@ int main()
         trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5)); // (scales first then rotates despite writing the rotate code first)
         //vec = trans * vec;
 
-        shader.setMat4("model", model);
+        //model = glm::mat4(1.0f);
+        //model = glm::rotate(model, (float)(glfwGetTime() * 0.5f), glm::vec3(0.5f, 1.0f, 1.0f));
+
+        glBindVertexArray(VAO); // Tells OpenGL which vertex data and attribute setup to use
+
+        for (unsigned int i = 0; i < 10; i++) { // Draw 10 cubes in the world space
+
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, cubePositions[i]);
+            float angle = 20.0f * i; // Rotate based of cube #
+            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            shader.setMat4("model", model);
+
+            glDrawArrays(GL_TRIANGLES, 0, 36); // Draw Cube
+        }
+
         shader.setMat4("view", view);
         shader.setMat4("projection", proj);
 
-        glBindVertexArray(VAO); // Tells OpenGL which vertex data and attribute setup to use
-        glDrawArrays(GL_TRIANGLES, 0, 36);
         //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // Draw the elements, draw 6 vertices,indices are of type unsigned int, EBO has an offset of 0
 
         processInput(window);
