@@ -10,6 +10,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+float deltaTime = 0.0f; // Time between current frame and last frame
+float lastFrame = 0.0f; // Time of last frame
 
 // Callback to resize the viewport when the window size changes
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -24,6 +30,22 @@ void processInput(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS){
         glfwSetWindowShouldClose(window, true); // Closes the window if escape is pressed 
     }
+
+    float cameraSpeed = 5.0f * deltaTime;
+    // WASD camera movement
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        cameraPos += cameraSpeed * cameraFront;;
+    }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        cameraPos -= cameraSpeed * cameraFront;
+    }
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    }
+
 }
 
 int main()
@@ -400,6 +422,9 @@ int main()
     // Render loop
     while (!glfwWindowShouldClose(window))
     {
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
 
         glPolygonMode(GL_FRONT_AND_BACK,GL_LINE); // Wireframe mode
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Default
@@ -449,23 +474,15 @@ int main()
             glDrawArrays(GL_TRIANGLES, 0, 36); // Draw Cube
         }
 
-        glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-
         glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
         glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget); // Reverse direction (direction from the origin to the camera)
 
         glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
         glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection)); // Cross product, points to the positive x axis
-        glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight); // Cross product of the right vector to get the up vector
-
-        const float radius = 10.0f;
-        float camX = sin(glfwGetTime()) * radius;
-        float camZ = cos(glfwGetTime()) * radius;
-
-        cameraPos = glm::vec3(camX, 0.0f, camZ);
+        //glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight); // Cross product of the right vector to get the up vector
 
         glm::mat4 view;
-        view = glm::lookAt(cameraPos, cameraTarget, cameraUp); // Creates a view matrix for the camera system
+        view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp); // Creates a view matrix for the camera system
 
         shader.setMat4("view", view);
         shader.setMat4("projection", proj);
