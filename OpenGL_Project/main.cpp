@@ -58,6 +58,12 @@ void processInput(GLFWwindow* window)
         cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
     }
 
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+        cameraPos += glm::vec3(0.0f, 1.0f, 0.0f) * cameraSpeed;
+    }
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+        cameraPos += glm::vec3(0.0f, -1.0f, 0.0f) * cameraSpeed;;
+    }
 }
 
 // Mouse Input
@@ -241,8 +247,6 @@ int main()
     glGenTextures(1, &texture); // args 1: how many textures we want to generate
     glBindTexture(GL_TEXTURE_2D, texture);
 
-
-
     // tells OpenGL how to interpret the textures, args 1: texture target
     // args 2: which axises to configure the texture to, args 3: how the texture should be wrapped
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
@@ -297,6 +301,11 @@ int main()
     glGenVertexArrays(1, &VAO); // Store the reference to the Object as an ID
     glBindVertexArray(VAO); // Binds the Object as the current active object in the OpenGL context
 
+    // Light VAO
+    unsigned int lightVAO;
+    glGenVertexArrays(1, &lightVAO);
+    glBindVertexArray(lightVAO);
+
     // Make a Elemenet buffer object
     unsigned int EBO;
     glGenBuffers(1, &EBO);
@@ -326,15 +335,7 @@ int main()
 
     // Vertex Coordinates attributes
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    // Write the vector shader (default: 16 4-component vertex attributes available)
-    // vecn: the default vector of n floats. 
-    // bvecn : a vector of n booleans. 
-    // ivecn : a vector of n integers. 
-    // uvecn : a vector of n unsigned integers. 
-    // dvecn : a vector of n double components
-    //  rgba for colors or stpq for texture coordinates, swizzling (vec2 someVec; vec4 differentVec = someVec.xyxx;)
+    //glEnableVertexAttribArray(1);
     
     // Use the .vs and .fs extensions for the vector shader and fragment shader files
     Shader shader("vShader.vs", "fShader.fs");
@@ -346,117 +347,6 @@ int main()
     shader.use();
     shader.setInt("texture2", 1); // use the shader class to set the uniforms 
     // Alternative: glUniform1i(glGetUniformLocation(shader.ID, "texture1"), 0);
-
-    int vec3One[] = {1, 2, 3};
-    int vec3Two[] = {3, 4, 5};
-    int vec3Result[3];
-    vec3Result[0] = vec3One[0] + vec3Two[0];
-    vec3Result[1] = vec3One[1] + vec3Two[1];
-    vec3Result[2] = vec3One[2] + vec3Two[2];
-    //std::cout << vec3Result[0] << "," << vec3Result[1] << "," << vec3Result[2];
-
-    vec3Result[0] = vec3One[0] - vec3Two[0];
-    vec3Result[1] = vec3One[1] - vec3Two[1];
-    vec3Result[2] = vec3One[2] - vec3Two[2];
-    //std::cout << vec3Result[0] << "," << vec3Result[1] << "," << vec3Result[2];
-
-    // Dot Product Calculations
-    float vec3NormA[] = {0.6, -0.8, 0}; // Normalized Vectors
-    float vec3NormB[] = { 0, 1, 0 };
-    float vec3Resultf[3], normDotProd;
-
-    // Component-wise multiplication
-    vec3Resultf[0] = vec3NormA[0] * vec3NormB[0];
-    vec3Resultf[1] = vec3NormA[1] * vec3NormB[1];
-    vec3Resultf[2] = vec3NormA[2] * vec3NormB[2];
-
-    normDotProd = vec3Resultf[0] + vec3Resultf[1] + vec3Resultf[2]; 
-
-    std::cout << normDotProd << std::endl;
-    std::cout << (acos(normDotProd)*180/(acos(-1.0))) << std::endl; // Finds the angle between the two vectors and outputs them in degrees, (acos(-1.0)) = pi
-
-    // Cross Product
-    vec3One[0] = 1; vec3One[1] = 2; vec3One[2] = 3;
-    vec3Two[0] = 4; vec3Two[1] = 5; vec3Two[2] = 6;
-
-    vec3Result[0] = vec3One[1] * vec3Two[2] - vec3One[2] * vec3Two[1]; // Vy*Wz ​− Vz*Wy
-    vec3Result[1] = vec3One[2] * vec3Two[0] - vec3One[0] * vec3Two[2]; // Vz*Wx ​− Vx*Wz
-    vec3Result[2] = vec3One[0] * vec3Two[1] - vec3One[1] * vec3Two[0]; // Vx*Wy ​− Vy*Wx
-
-    float crossProd = sqrtf(powf(vec3Result[0], 2) + powf(vec3Result[1], 2) + powf(vec3Result[2], 2));
-    std::cout << vec3Result[0] << "," << vec3Result[1] << "," << vec3Result[2] << std::endl;
-    std::cout << crossProd << std::endl;
-
-    // Matrix Mulitplication
-    int matrixA[2][2] = { {1, 2}, { 3, 4}};
-    int matrixB[2][2] = { {5, 6}, { 7, 8}};
-    int result[2][2];
-
-    result[0][0] = matrixA[0][0]* matrixB[0][0] + matrixA[0][1] * matrixB[1][0];
-    result[0][1] = matrixA[0][0] * matrixB[0][1] + matrixA[0][1] * matrixB[1][1];
-    result[1][0] = matrixA[1][0] * matrixB[0][0] + matrixA[1][1] * matrixB[1][0];
-    result[1][1] = matrixA[1][0] * matrixB[0][1] + matrixA[1][1] * matrixB[1][1];
-    std::cout << result[0][0] << "," << result[0][1] << "\n" << result[1][0] << "," << result[1][1] << std::endl;
-    
-    // Scaling
-    int vec4[] = { 3, 2, 1, 1}; // w = Homogeneous coordinate, when it is 0 the vector becomes a direction vector (translations are not possible)
-    float MatrixScale[4][4] = { {1,0,0,0}, {0,1,0,0}, {0,0,1,0}, {0,0,0,1} }; // identity matrix
-    float resultf[4];
-    MatrixScale[0][0] = 3; // Non uniform scale (scaling factor is different for each axis)
-    MatrixScale[1][1] = 2;
-    MatrixScale[2][2] = 2;
-    MatrixScale[3][3] = 1;
-
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            std::cout << MatrixScale[i][j] << ", ";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
-
-    // Translation
-    MatrixScale[0][3] = 2;
-    MatrixScale[1][3] = 2;
-    MatrixScale[2][3] = 2;
-
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            std::cout << MatrixScale[i][j] << ", ";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
-
-    // Rotation Around the X axis (in radians) (90 is the angle you want to rotate the vector by on that axis)
-    MatrixScale[0][3] = 0; MatrixScale[1][3] = 0; MatrixScale[2][3] = 0;
-    MatrixScale[1][1] = cos(90); MatrixScale[1][2] = -sin(90); 
-    MatrixScale[2][1] = sin(90); MatrixScale[2][2] = cos(90);
-    // Rotation Around the Y axis (in radians)
-    MatrixScale[1][1] = 1; MatrixScale[1][2] = 0; MatrixScale[2][1] = 0; // Reset values
-    MatrixScale[0][0] = cos(90); MatrixScale[0][2] = sin(90);
-    MatrixScale[2][0] = -sin(90); MatrixScale[2][2] = cos(90);
-    // Rotation Around the Z axis (in radians)
-    MatrixScale[2][0] = 0; MatrixScale[2][2] = 1; MatrixScale[0][0] = 1; MatrixScale[0][2] = 0;// Reset values
-    MatrixScale[0][0] = cos(90); MatrixScale[0][1] = -sin(90);
-    MatrixScale[1][0] = sin(90); MatrixScale[1][1] = cos(90);
-    // Careful of combining the rotation matrices due to Gimbal Locks, use Rodrigues' Rotation Matrix or Quaternions for complete avoidance
-    // Also Matrix Multiplication is not commutative, so order matters (multiplying the translation then the scale would also scale the translation vector)
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            std::cout << MatrixScale[i][j] << ", ";
-        }
-        std::cout << std::endl;
-    }
-
-    // i < N
-    for (int i = 0; i < 4; i++) {
-        resultf[i] = 0;
-        for (int j = 0; j < 4; j++) {
-            resultf[i] += MatrixScale[i][j] * vec4[j];
-        }
-    }
-    std::cout << resultf[0] << "," << resultf[1] << "," << resultf[2] << "," << resultf[3] << std::endl;
 
     // Use glm to translate a vector
     glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
@@ -485,7 +375,10 @@ int main()
     // Perspective projection
     glm::mat4 proj = glm::perspective(glm::radians(fov), (float)SCR_WIDTH/ (float)SCR_HEIGHT, 0.1f, 100.0f); // fov dependent on the user, aspect ratio (width/height), near distance/plane, far distance/plane
 
-
+    // Colours under different light colours
+    glm::vec3 lightColor(0.33f, 0.42f, 0.18f);
+    glm::vec3 toyColor(1.0f, 0.5f, 0.31f);
+    glm::vec3 result = lightColor * toyColor;
     
     // Render loop
     while (!glfwWindowShouldClose(window))
@@ -505,12 +398,16 @@ int main()
         glClearColor(red, green, blue, 1.0f); // State-setting function
         glClear(GL_COLOR_BUFFER_BIT); // State-using function
 
+        shader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+        shader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+
+        /*
         glActiveTexture(GL_TEXTURE0); // Activates the texture unit (useful for multiple textures, 0 on default, minimum of 16 texture units)
         glBindTexture(GL_TEXTURE_2D, texture);
 
         glActiveTexture(GL_TEXTURE1); // Use the second texture
         glBindTexture(GL_TEXTURE_2D, texture2);
-
+        */
         glEnable(GL_DEPTH_TEST); // enable depth testing (calculates which pixels should be on top depending on the stored z values)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear the depth buffer for each render iteration
 
@@ -529,7 +426,7 @@ int main()
         //model = glm::mat4(1.0f);
         //model = glm::rotate(model, (float)(glfwGetTime() * 0.5f), glm::vec3(0.5f, 1.0f, 1.0f));
 
-        glBindVertexArray(VAO); // Tells OpenGL which vertex data and attribute setup to use
+        glBindVertexArray(lightVAO); // Tells OpenGL which vertex data and attribute setup to use
 
         for (unsigned int i = 0; i < 10; i++) { // Draw 10 cubes in the world space
 

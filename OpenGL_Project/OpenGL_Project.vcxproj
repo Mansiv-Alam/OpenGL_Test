@@ -325,6 +325,7 @@
     <ClCompile Include="include\glm\glm.cppm" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="stb_image.cpp" />
+    <ClCompile Include="Testing.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="fShader.fs" />
