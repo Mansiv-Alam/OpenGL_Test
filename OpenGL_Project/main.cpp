@@ -339,13 +339,12 @@ int main()
     
     // Use the .vs and .fs extensions for the vector shader and fragment shader files
     Shader shader("vShader.vs", "fShader.fs");
+    Shader lightCubeShader("vShader.vs", "lightShader.fs");
     
 
     // Set viewport and resize callback
     glViewport(0, 0, 800, 600);
 
-    shader.use();
-    shader.setInt("texture2", 1); // use the shader class to set the uniforms 
     // Alternative: glUniform1i(glGetUniformLocation(shader.ID, "texture1"), 0);
 
     // Use glm to translate a vector
@@ -379,6 +378,10 @@ int main()
     glm::vec3 lightColor(0.33f, 0.42f, 0.18f);
     glm::vec3 toyColor(1.0f, 0.5f, 0.31f);
     glm::vec3 result = lightColor * toyColor;
+
+    // Light Source Position
+    glm::vec3 lightPos(1.2f, 1.0f, -1.0f);
+
     
     // Render loop
     while (!glfwWindowShouldClose(window))
@@ -390,14 +393,16 @@ int main()
         glPolygonMode(GL_FRONT_AND_BACK,GL_LINE); // Wireframe mode
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Default
 
-        float red = 121.0 / 255.0;
-        float green = 175.0 / 255.0;
-        float blue =  199.0 / 255.0;
+        float red = 0.0 / 255.0;
+        float green = 0.0 / 255.0;
+        float blue =  0.0 / 255.0;
 
         // Clear the screen with a specified color
         glClearColor(red, green, blue, 1.0f); // State-setting function
         glClear(GL_COLOR_BUFFER_BIT); // State-using function
 
+        shader.use();
+        shader.setInt("texture2", 1); // use the shader class to set the uniforms 
         shader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
         shader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 
@@ -426,19 +431,6 @@ int main()
         //model = glm::mat4(1.0f);
         //model = glm::rotate(model, (float)(glfwGetTime() * 0.5f), glm::vec3(0.5f, 1.0f, 1.0f));
 
-        glBindVertexArray(lightVAO); // Tells OpenGL which vertex data and attribute setup to use
-
-        for (unsigned int i = 0; i < 10; i++) { // Draw 10 cubes in the world space
-
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, cubePositions[i]);
-            float angle = 20.0f * i; // Rotate based of cube #
-            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-            shader.setMat4("model", model);
-
-            glDrawArrays(GL_TRIANGLES, 0, 36); // Draw Cube
-        }
-
         glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
         glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget); // Reverse direction (direction from the origin to the camera)
 
@@ -451,9 +443,25 @@ int main()
 
         glm::mat4 proj = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f); // fov dependent on the user, aspect ratio (width/height), near distance/plane, far distance/plane
 
+        glm::mat4 model = glm::mat4(1.0f);
+        shader.setMat4("model", model);
         shader.setMat4("view", view);
         shader.setMat4("projection", proj);
 
+        glBindVertexArray(lightVAO); // Tells OpenGL which vertex data and attribute setup to use
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        lightCubeShader.use();
+        lightCubeShader.setMat4("projection", proj);
+        lightCubeShader.setMat4("view", view);
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, lightPos);
+
+        model = glm::scale(model, glm::vec3(0.4f)); // a smaller cube
+        lightCubeShader.setMat4("model", model);
+
+        glBindVertexArray(lightVAO); // make a different vao for the lighting cube usually
+        glDrawArrays(GL_TRIANGLES, 0, 36);
         //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // Draw the elements, draw 6 vertices,indices are of type unsigned int, EBO has an offset of 0
 
         processInput(window);

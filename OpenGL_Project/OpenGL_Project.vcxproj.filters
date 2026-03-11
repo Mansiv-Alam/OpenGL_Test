@@ -1350,6 +1350,7 @@
     <None Include="include\glm\gtx\wrap.inl">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="lightShader.fs" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="wall.jpg">
