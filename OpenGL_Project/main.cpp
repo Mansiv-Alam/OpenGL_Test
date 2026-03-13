@@ -377,7 +377,7 @@ int main()
     glm::vec3 objectColor(1.0f, 0.5f, 0.31f);
 
     // Light Source Position
-    glm::vec3 lightPos(1.2f, 1.0f, 0.8f);
+    glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
     
     // Render loop
@@ -403,6 +403,7 @@ int main()
         shader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
         shader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
         shader.setVec3("lightPos", lightPos);
+        shader.setVec3("viewPos", cameraPos);
 
         /*
         glActiveTexture(GL_TEXTURE0); // Activates the texture unit (useful for multiple textures, 0 on default, minimum of 16 texture units)
