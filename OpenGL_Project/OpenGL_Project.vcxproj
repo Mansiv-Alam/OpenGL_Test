@@ -470,10 +470,12 @@
     <None Include="include\glm\gtx\vector_query.inl" />
     <None Include="include\glm\gtx\wrap.inl" />
     <None Include="lightShader.fs" />
+    <None Include="vlightShader.vs" />
     <None Include="vShader.vs" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="awesomeface.png" />
+    <Image Include="container2.png" />
     <Image Include="wall.jpg" />
   </ItemGroup>
   <ItemGroup>

@@ -3,36 +3,37 @@ out vec4 FragColor;
 
 in vec3 Normal;
 in vec3 FragPos;
+in vec2 TexCoords;
 
 struct Material {
-vec3 ambient;
-vec3 diffuse;
-vec3 specular;
-float shininess;
+
+    sampler2D diffuse;
+    vec3 specular;
+    float shininess;
 };
 
 struct Light {
-vec3 position;
-vec3 ambient;
-vec3 diffuse;
-vec3 specular;
+    vec3 position;
+
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
 };
 
 uniform Material material;  
 uniform Light light;
-
 uniform vec3 viewPos;
 
 void main()
 {
     //FragColor = mix (texture(texture1, TexCoord), texture(texture2, TexCoord), 0.2f); // 0.2 = 20% linear interpolation
-    vec3 ambient = material.ambient * light.ambient;
+    vec3 ambient = vec3(texture(material.diffuse, TexCoords)) * light.ambient;
 
     // Calculate the normalized vectors
     vec3 norm = normalize(Normal);
     vec3 lightDir = normalize(light.position - FragPos);
     float diff = max(dot(norm, lightDir), 0.0); // Calculate the angle using the dot product, max because >90 degrees diff = negative 
-    vec3 diffuse = (diff * material.diffuse) * light.diffuse;
+    vec3 diffuse = (diff * vec3(texture(material.diffuse, TexCoords))) * light.diffuse;
 
     // Calculate specular lighting
     float specularStrength = 0.5;
@@ -41,6 +42,6 @@ void main()
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     vec3 specular = (material.specular * spec) * light.specular;
 
-    vec3 result = (ambient + diff + specular); // Phong shading
+    vec3 result = (ambient + diffuse + specular); // Phong shading
     FragColor = vec4(result, 1.0f);
 }
