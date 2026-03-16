@@ -268,7 +268,7 @@ int main()
     }
     stbi_image_free(data); // frees up memory allocated when loading the image in stbi_load()
 
-    /*glGenTextures(1, &texture2);
+    glGenTextures(1, &texture2);
     glBindTexture(GL_TEXTURE_2D, texture2);
     // Wrapping parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
@@ -278,7 +278,7 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     // Load images and create mipmaps 
-    data = stbi_load("awesomeface.png", &width, &height, &nrChannels, 0);
+    data = stbi_load("container2_specular.png", &width, &height, &nrChannels, 0);
     if (data)
     {
         // note that the awesomeface.png has transparency and thus an alpha channel, so make sure to tell OpenGL the data type is of GL_RGBA
@@ -289,7 +289,7 @@ int main()
     {
         std::cout << "Failed to load texture" << std::endl;
     }
-    stbi_image_free(data);*/
+    stbi_image_free(data);
 
 
     // Make a Vertex Array object
@@ -385,6 +385,8 @@ int main()
 
     shader.use();
     shader.setInt("material.diffuse", 0);
+    shader.setInt("material.specular", 1);
+
     
     // Render loop
     while (!glfwWindowShouldClose(window))
@@ -415,13 +417,12 @@ int main()
         glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
 
         shader.use();
-        shader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
         shader.setFloat("material.shininess", 32.0f);
 
         shader.setVec3("light.position", lightPos);
         shader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
         shader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
-        shader.setVec3("light.specular", 0.6f, 0.6f, 0.6f);
+        shader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
 
         shader.setVec3("viewPos", cameraPos);
 
@@ -463,8 +464,11 @@ int main()
         shader.setMat4("view", view);
         shader.setMat4("projection", proj);
 
-        glActiveTexture(GL_TEXTURE0); // Activates the texture unit (useful for multiple textures, 0 on default, minimum of 16 texture units)
+        glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture);
+
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture2);
 
         glBindVertexArray(VAO); // Tells OpenGL which vertex data and attribute setup to use
         glDrawArrays(GL_TRIANGLES, 0, 36);

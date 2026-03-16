@@ -8,7 +8,7 @@ in vec2 TexCoords;
 struct Material {
 
     sampler2D diffuse;
-    vec3 specular;
+    sampler2D specular;
     float shininess;
 };
 
@@ -40,7 +40,7 @@ void main()
     vec3 viewDir = normalize(viewPos - FragPos);
     vec3 reflectDir = reflect(-lightDir, norm); // the lightDirection vector is pointing TOWARDS the light source but reflect expects it to point FROM the light source
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-    vec3 specular = (material.specular * spec) * light.specular;
+    vec3 specular = (vec3(texture(material.specular, TexCoords)) * spec) * light.specular;
 
     vec3 result = (ambient + diffuse + specular); // Phong shading
     FragColor = vec4(result, 1.0f);
