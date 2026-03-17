@@ -419,7 +419,8 @@ int main()
         shader.use();
         shader.setFloat("material.shininess", 32.0f);
 
-        shader.setVec3("light.position", lightPos);
+        //shader.setVec3("light.position", lightPos);
+        shader.setVec3("light.direction", -0.2f, -1.0f, -0.3f);
         shader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
         shader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
         shader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
@@ -471,7 +472,17 @@ int main()
         glBindTexture(GL_TEXTURE_2D, texture2);
 
         glBindVertexArray(VAO); // Tells OpenGL which vertex data and attribute setup to use
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        for (unsigned int i = 0; i < 10; i++) { // Draw 10 cubes in the world space
+
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, cubePositions[i]);
+            float angle = 20.0f * i; // Rotate based of cube #
+            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            shader.setMat4("model", model);
+
+            glDrawArrays(GL_TRIANGLES, 0, 36); // Draw Cube
+        }
 
         lightCubeShader.use();
         lightCubeShader.setMat4("projection", proj);
