@@ -419,11 +419,15 @@ int main()
         shader.use();
         shader.setFloat("material.shininess", 32.0f);
 
-        //shader.setVec3("light.position", lightPos);
-        shader.setVec3("light.direction", -0.2f, -1.0f, -0.3f);
+        shader.setVec3("light.position", lightPos);
+        //shader.setVec3("light.direction", -0.2f, -1.0f, -0.3f);
         shader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
         shader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
         shader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+
+        shader.setFloat("light.constant", 1.0f);
+        shader.setFloat("light.linear", 0.03f);
+        shader.setFloat("light.quadratic", 0.032f);
 
         shader.setVec3("viewPos", cameraPos);
 

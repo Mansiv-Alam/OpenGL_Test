@@ -13,12 +13,16 @@ struct Material {
 };
 
 struct Light {
-    //vec3 position; 
+    vec3 position; 
     vec3 direction;
 
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
+
+    float constant;
+    float linear;
+    float quadratic;
 };
 
 uniform Material material;  
@@ -32,7 +36,7 @@ void main()
 
     // Calculate the normalized vectors
     vec3 norm = normalize(Normal);
-    vec3 lightDir = normalize(-light.direction);
+    vec3 lightDir = normalize(light.position - FragPos);
     float diff = max(dot(norm, lightDir), 0.0); // Calculate the angle using the dot product, max because >90 degrees diff = negative 
     vec3 diffuse = (diff * vec3(texture(material.diffuse, TexCoords))) * light.diffuse;
 
@@ -42,6 +46,13 @@ void main()
     vec3 reflectDir = reflect(-lightDir, norm); // the lightDirection vector is pointing TOWARDS the light source but reflect expects it to point FROM the light source
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     vec3 specular = (vec3(texture(material.specular, TexCoords)) * spec) * light.specular;
+
+    float distance = length(light.position - FragPos);
+    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+
+    ambient *= attenuation;
+    diffuse *= attenuation;
+    specular *= attenuation;
 
     vec3 result = (ambient + diffuse + specular); // Phong shading
     FragColor = vec4(result, 1.0f);
