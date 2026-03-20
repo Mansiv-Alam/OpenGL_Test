@@ -2,13 +2,16 @@
 #include <GLFW/glfw3.h>
 #include <windows.h>
 #include <iostream>
-#include <Shader.h>
+#include <fstream>
+#include <Custom/Shader.h>
 #include <stb_image.h>
 #include <math.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#include <Custom/Model.h>
 
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
@@ -381,7 +384,8 @@ int main()
     // Perspective projection
     glm::mat4 proj = glm::perspective(glm::radians(fov), (float)SCR_WIDTH/ (float)SCR_HEIGHT, 0.1f, 100.0f); // fov dependent on the user, aspect ratio (width/height), near distance/plane, far distance/plane
 
-
+    
+    Model ExternalModel("../resources/backpack/backpack.obj");
 
     // Colours under different light colours
     glm::vec3 lightColor(0.33f, 0.42f, 0.18f);
@@ -403,7 +407,7 @@ int main()
         lastFrame = currentFrame;
 
         glPolygonMode(GL_FRONT_AND_BACK,GL_LINE); // Wireframe mode
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Default
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Default
 
         float red = 70.0 / 255.0;
         float green = 70.0 / 255.0;
@@ -432,6 +436,7 @@ int main()
         shader.setVec3("DirLight.diffuse", 0.4f, 0.4f, 0.4f);
         shader.setVec3("DirLight.specular", 0.5f, 0.5f, 0.5f);
 
+        // point light 1
         shader.setVec3("PointLights[0].position", pointLightPositions[0]);
         shader.setVec3("PointLights[0].ambient", 0.05f, 0.05f, 0.05f);
         shader.setVec3("PointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
@@ -440,7 +445,7 @@ int main()
         shader.setFloat("PointLights[0].linear", 0.09f);
         shader.setFloat("PointLights[0].quadratic", 0.032f);
         // point light 2
-        shader.setVec3("PointLights[1].position", pointLightPositions[1]);
+        /*shader.setVec3("PointLights[1].position", pointLightPositions[1]);
         shader.setVec3("PointLights[1].ambient", 0.05f, 0.05f, 0.05f);
         shader.setVec3("PointLights[1].diffuse", 0.8f, 0.8f, 0.8f);
         shader.setVec3("PointLights[1].specular", 1.0f, 1.0f, 1.0f);
@@ -462,7 +467,7 @@ int main()
         shader.setVec3("PointLights[3].specular", 1.0f, 1.0f, 1.0f);
         shader.setFloat("PointLights[3].constant", 1.0f);
         shader.setFloat("PointLights[3].linear", 0.09f);
-        shader.setFloat("PointLights[3].quadratic", 0.032f);
+        shader.setFloat("PointLights[3].quadratic", 0.032f);*/
 
         // spotLight
         shader.setVec3("SpotLight.position", cameraPos);
@@ -524,7 +529,7 @@ int main()
 
         glBindVertexArray(VAO); // Tells OpenGL which vertex data and attribute setup to use
 
-        for (unsigned int i = 0; i < 10; i++) { // Draw 10 cubes in the world space
+        /*for (unsigned int i = 0; i < 10; i++) { // Draw 10 cubes in the world space
 
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, cubePositions[i]);
@@ -533,21 +538,20 @@ int main()
             shader.setMat4("model", model);
 
             glDrawArrays(GL_TRIANGLES, 0, 36); // Draw Cube
-        }
+        }*/
+        ExternalModel.Draw(shader);
+
 
         lightCubeShader.use();
         lightCubeShader.setMat4("projection", proj);
         lightCubeShader.setMat4("view", view);
 
         glBindVertexArray(lightVAO); // make a different vao for the lighting cube usually
-        for (unsigned int i = 0; i < 4; i++)
-        {
-            model = glm::mat4(1.0f);
-            model = glm::translate(model, pointLightPositions[i]);
-            model = glm::scale(model, glm::vec3(0.2f)); // Make it a smaller cube
-            lightCubeShader.setMat4("model", model);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, pointLightPositions[0]);
+        model = glm::scale(model, glm::vec3(0.2f)); // Make it a smaller cube
+        lightCubeShader.setMat4("model", model);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
 
         //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // Draw the elements, draw 6 vertices,indices are of type unsigned int, EBO has an offset of 0
 

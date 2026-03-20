@@ -51,7 +51,7 @@ struct directionLight{
 
 uniform Material material;
 uniform directionLight DirLight;
-uniform pointLight PointLights[NR_POINT_LIGHTS];
+uniform pointLight PointLights[1];
 uniform spotLight SpotLight;
 uniform vec3 viewPos;
 
