@@ -60,8 +60,17 @@ vec3 CalcDirLight(directionLight light, vec3 normal, vec3 viewDir);
 vec3 CalcPointLight(pointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec3 CalcSpotLight(spotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 
-void main()
+// Depth Testing
+float near = 0.1; 
+float far = 100.0; 
+float LinearizeDepth(float depth) 
 {
+    float z = depth * 2.0 - 1.0; // back to NDC (Normalized Device Coordinates (0,1 range to -1,1))
+    return (2.0 * near * far) / (far + near - z * (far - near));
+}
+
+void main()
+{ 
     //FragColor = mix (texture(texture1, TexCoord), texture(texture2, TexCoord), 0.2f); // 0.2 = 20% linear interpolation
     
     vec3 norm = normalize(Normal);
@@ -77,7 +86,9 @@ void main()
 
     // phase 3: Spot light
     result += CalcSpotLight(SpotLight, norm, FragPos, viewDir);
-    FragColor = vec4(result, 1.0);
+
+    float depth = LinearizeDepth(gl_FragCoord.z) / far; // converts non-linear depth into linear depth and divide by far to normalize into 0,1 but now its the real distance
+    FragColor = vec4(vec3(depth), 1.0);
 
 }
 

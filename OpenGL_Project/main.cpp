@@ -407,7 +407,7 @@ int main()
         lastFrame = currentFrame;
 
         glPolygonMode(GL_FRONT_AND_BACK,GL_LINE); // Wireframe mode
-        //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Default
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Default
 
         float red = 70.0 / 255.0;
         float green = 70.0 / 255.0;
@@ -416,6 +416,9 @@ int main()
         // Clear the screen with a specified color
         glClearColor(red, green, blue, 1.0f); // State-setting function
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // State-using function
+        glEnable(GL_DEPTH_TEST); // enable depth testing (calculates which pixels should be on top depending on the stored z values)
+        glDepthFunc(GL_LESS);
+
 
         //shader.setInt("texture2", 1); // use the shader class to set the uniforms 
 
@@ -486,7 +489,6 @@ int main()
         //glActiveTexture(GL_TEXTURE1); // Use the second texture
         //glBindTexture(GL_TEXTURE_2D, texture2);
         
-        glEnable(GL_DEPTH_TEST); // enable depth testing (calculates which pixels should be on top depending on the stored z values)
         glClear(GL_COLOR_BUFFER_BIT); // Clear the depth buffer for each render iteration
 
         // Draw Polygon
@@ -529,6 +531,13 @@ int main()
 
         glBindVertexArray(VAO); // Tells OpenGL which vertex data and attribute setup to use
 
+        model = glm::translate(model, cubePositions[0]);
+        float angle = 20.0f; // Rotate based of cube #
+        model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+        shader.setMat4("model", model);
+
+        glDrawArrays(GL_TRIANGLES, 0, 36); // Draw Cube
+
         /*for (unsigned int i = 0; i < 10; i++) { // Draw 10 cubes in the world space
 
             glm::mat4 model = glm::mat4(1.0f);
@@ -539,7 +548,8 @@ int main()
 
             glDrawArrays(GL_TRIANGLES, 0, 36); // Draw Cube
         }*/
-        ExternalModel.Draw(shader);
+
+        //ExternalModel.Draw(shader);
 
 
         lightCubeShader.use();
